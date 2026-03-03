@@ -34,7 +34,7 @@ canvas#speseChart {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-}}
+}
   </style>
 
   <!-- Librerie esterne -->
@@ -67,19 +67,20 @@ canvas#speseChart {
 const firebaseConfig = {
   apiKey: "AIzaSyBr6nu9AM-CuZmIAArzqVFLurBNXdYmOCI",
   authDomain: "mangiaebevi-2026.firebaseapp.com",
-  databaseURL: "https://mangiaebevi-2026-default-rtdb.europe-west1.firebasedatabase.app/",  // <--- AGGIUNGI QUESTA RIGA
+  databaseURL: "https://mangiaebevi-2026-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "mangiaebevi-2026",
   storageBucket: "mangiaebevi-2026.firebasestorage.app",
   messagingSenderId: "844364471012",
   appId: "1:844364471012:web:1cf2d8edcbb9fd3010aaf1"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    // Inizializza Firebase
+    firebase.initializeApp(firebaseConfig);
 // Aggiungi l'URL del database corretto:
 const db = firebase.database(); // funziona ORA perché l’URL è nel config
 
     const dbRef = db.ref("spese");
+    let speseChartInstance = null;
     dbRef.on("value", (snapshot) => {
       const data = snapshot.val();
       const totals = [];
@@ -113,7 +114,8 @@ new DataTable('#classifica', {
       // Grafico top 5
       const top5 = totals.slice(0, 5);
       const ctx = document.getElementById('speseChart').getContext('2d');
-      new Chart(ctx, {
+      if (speseChartInstance) { speseChartInstance.destroy(); }
+      speseChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: top5.map(t => t.squadra),
