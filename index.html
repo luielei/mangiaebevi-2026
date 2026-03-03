@@ -34,7 +34,7 @@ canvas#speseChart {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-}
+}}
   
 /* SOLO GRAFICO */
 .table-container, table, thead, tbody, tr, th, td { display: none !important; }
@@ -86,13 +86,13 @@ const db = firebase.database(); // funziona ORA perché l’URL è nel config
     const dbRef = db.ref("spese");
     let speseChartInstance = null;
     dbRef.on("value", (snapshot) => {
-      const data = snapshot.val(, (error) => { console.error("Firebase RTDB error:", error); });
+      const data = snapshot.val();
       const totals = [];
 
       for (const squadra in data) {
         const spese = data[squadra];
-        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0, (error) => { console.error("Firebase RTDB error:", error); });
-        const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase(, (error) => { console.error("Firebase RTDB error:", error); });
+        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0);
+        const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase();
         totals.push({ squadra: nomeVisuale, totale }, (error) => { console.error("Firebase RTDB error:", error); });
       }
 
