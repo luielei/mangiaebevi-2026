@@ -34,8 +34,12 @@ canvas#speseChart {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-}
-  </style>
+}}
+  
+/* SOLO GRAFICO */
+.table-container, table, thead, tbody, tr, th, td { display: none !important; }
+.totale, #totale, .totale-importo, #totale-importo { display: none !important; }
+</style>
 
   <!-- Librerie esterne -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -65,13 +69,13 @@ canvas#speseChart {
   <script>
     // Configurazione Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBr6nu9AM-CuZmIAArzqVFLurBNXdYmOCI",
+  apiKey: "YOUR_API_KEY",
   authDomain: "mangiaebevi-2026.firebaseapp.com",
   databaseURL: "https://mangiaebevi-2026-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "mangiaebevi-2026",
   storageBucket: "mangiaebevi-2026.firebasestorage.app",
-  messagingSenderId: "844364471012",
-  appId: "1:844364471012:web:1cf2d8edcbb9fd3010aaf1"
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
     // Inizializza Firebase
@@ -82,14 +86,14 @@ const db = firebase.database(); // funziona ORA perché l’URL è nel config
     const dbRef = db.ref("spese");
     let speseChartInstance = null;
     dbRef.on("value", (snapshot) => {
-      const data = snapshot.val();
+      const data = snapshot.val(, (error) => { console.error("Firebase RTDB error:", error); });
       const totals = [];
 
       for (const squadra in data) {
         const spese = data[squadra];
-        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0);
-        const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase();
-        totals.push({ squadra: nomeVisuale, totale });
+        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0, (error) => { console.error("Firebase RTDB error:", error); });
+        const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase(, (error) => { console.error("Firebase RTDB error:", error); });
+        totals.push({ squadra: nomeVisuale, totale }, (error) => { console.error("Firebase RTDB error:", error); });
       }
 
       totals.sort((a, b) => b.totale - a.totale);
@@ -126,6 +130,14 @@ new DataTable('#classifica', {
           }]
         },
         options: {
+        plugins: {
+          tooltip: { enabled: false },
+          legend: { display: false }
+        },
+        scales: {
+          y: { ticks: { display: false } },
+          x: { ticks: { display: true } }
+        },
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
