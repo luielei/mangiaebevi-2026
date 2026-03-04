@@ -111,8 +111,8 @@ new DataTable('#classifica', {
   order: [[1, 'desc']]
 });
 
-      // Grafico top 10
-      const top5 = totals.slice(0, 10);
+      // Grafico top 5
+      const top5 = totals.slice(0, 5);
       const ctx = document.getElementById('speseChart').getContext('2d');
       if (speseChartInstance) { speseChartInstance.destroy(); }
       speseChartInstance = new Chart(ctx, {
