@@ -54,14 +54,14 @@ canvas#speseChart {
 <div id="chart-container">
   <canvas id="speseChart"></canvas>
 </div>
-
+<!--
     <table id="classifica">
       <thead>
         <tr><th>Squadra</th><th>Totale (CHF)</th></tr>
       </thead>
       <tbody></tbody>
     </table>
-
+-->
   <script>
     // Configurazione Firebase
 const firebaseConfig = {
@@ -93,7 +93,7 @@ const db = firebase.database(); // funziona ORA perché l’URL è nel config
       }
 
       totals.sort((a, b) => b.totale - a.totale);
-
+/*	
       // Popola la tabella
       const tbody = document.querySelector("#classifica tbody");
       tbody.innerHTML = '';
@@ -106,7 +106,7 @@ const db = firebase.database(); // funziona ORA perché l’URL è nel config
       if ($.fn.dataTable.isDataTable('#classifica')) {
   $('#classifica').DataTable().clear().destroy();
 }
-
+*/
 new DataTable('#classifica', {
   order: [[1, 'desc']]
 });
