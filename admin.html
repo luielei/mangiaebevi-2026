@@ -52,6 +52,30 @@
   <button onclick="aggiungiSpesa()">➕ Aggiungi spesa</button>
   <button onclick="rimuoviUltima()">🗑️ Rimuovi ultima spesa</button>
 
+  <hr style="margin:2rem 0" />
+
+  <label style="display:flex; gap:.5rem; align-items:center;">
+    <input type="checkbox" id="toggleClassifica" />
+    Mostra classifica (come index)
+  </label>
+
+  <div id="classificaBox" class="hidden">
+    <label for="topN">Quante squadre:</label>
+    <select id="topN">
+      <option value="5">Top 5</option>
+      <option value="10" selected>Top 10</option>
+      <option value="999">Tutte</option>
+    </select>
+
+    <h2>Classifica spese</h2>
+    <table id="tabellaClassifica">
+      <thead>
+        <tr><th>#</th><th>Squadra</th><th>Totale (CHF)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
   <h2>Spese attuali</h2>
   <table id="tabellaSpese">
     <thead><tr><th>#</th><th>Importo</th></tr></thead>
@@ -149,6 +173,78 @@
       tabella.innerHTML += row;
     });
   }
+
+  const toggleClassifica = document.getElementById("toggleClassifica");
+  const classificaBox = document.getElementById("classificaBox");
+  const topNSelect = document.getElementById("topN");
+  const classificaBody = document.querySelector("#tabellaClassifica tbody");
+
+  let lastTotals = []; // cache per ri-render veloce
+
+  function safeNumber(x) {
+    const n = parseFloat(x);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function calcolaTotalsDaSpese(speseObj) {
+    const totals = [];
+    const data = speseObj || {};
+
+    for (const squadra in data) {
+      const arr = Array.isArray(data[squadra]) ? data[squadra] : [];
+      const totale = arr.reduce((sum, v) => sum + safeNumber(v), 0);
+      totals.push({ key: squadra, nome: squadra.replace(/_/g, " ").toUpperCase(), totale });
+    }
+
+    totals.sort((a, b) => b.totale - a.totale);
+    return totals;
+  }
+
+  function renderClassifica() {
+    const topN = parseInt(topNSelect.value, 10);
+    const rows = (topN === 999) ? lastTotals : lastTotals.slice(0, topN);
+
+    classificaBody.innerHTML = "";
+    rows.forEach((t, idx) => {
+      // medaglie (opzionale, ma carino anche in admin)
+      let medal = "";
+      if (idx === 0) medal = " 🥇";
+      if (idx === 1) medal = " 🥈";
+      if (idx === 2) medal = " 🥉";
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${t.nome}${medal}</td>
+        <td>${t.totale.toFixed(2)}</td>
+      `;
+      classificaBody.appendChild(tr);
+    });
+  }
+
+  // Realtime: così l'admin vede SEMPRE la stessa classifica dell'index (stessa sorgente e stesso calcolo)
+  speseRef.on("value", (snap) => {
+    lastTotals = calcolaTotalsDaSpese(snap.val());
+    if (!classificaBox.classList.contains("hidden")) {
+      renderClassifica();
+    }
+  });
+
+  toggleClassifica.addEventListener("change", () => {
+    if (toggleClassifica.checked) {
+      classificaBox.classList.remove("hidden");
+      renderClassifica();
+    } else {
+      classificaBox.classList.add("hidden");
+    }
+  });
+
+  topNSelect.addEventListener("change", () => {
+    if (!classificaBox.classList.contains("hidden")) renderClassifica();
+  });
+
+
+
 </script>
 </body>
 </html>
