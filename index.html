@@ -122,6 +122,12 @@ new DataTable('#classifica', {
           datasets: [{
             label: 'Spese CHF',
             data: top10.map(t => t.totale),
+            backgroundColor: top10.map((_, i) => {
+              if (i === 0) return '#FFD700';  // oro
+              if (i === 1) return '#C0C0C0';  // argento
+              if (i === 2) return '#CD7F32';  // bronzo
+              return 'rgba(54, 162, 235, 0.6)'; // celeste
+            }),
             borderWidth: 1
           }]
         },
