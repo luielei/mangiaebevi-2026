@@ -50,7 +50,7 @@ canvas#speseChart {
 <body>
   <h1>Lui & Lei - Coppa Mangia & Bevi 2026</h1>
 
-<h2>Top 5</h2>
+<h2>Top 10</h2>
 <div id="chart-container">
   <canvas id="speseChart"></canvas>
 </div>
@@ -111,17 +111,17 @@ new DataTable('#classifica', {
   order: [[1, 'desc']]
 });
 
-      // Grafico top 5
-      const top5 = totals.slice(0, 5);
+      // Grafico top 10
+      const top10 = totals.slice(0, 10);
       const ctx = document.getElementById('speseChart').getContext('2d');
       if (speseChartInstance) { speseChartInstance.destroy(); }
       speseChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: top5.map(t => t.squadra),
+          labels: top10.map(t => t.squadra),
           datasets: [{
             label: 'Spese CHF',
-            data: top5.map(t => t.totale),
+            data: top10.map(t => t.totale),
             borderWidth: 1
           }]
         },
