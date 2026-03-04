@@ -130,8 +130,16 @@ new DataTable('#classifica', {
          responsive: true,
          maintainAspectRatio: false,
          scales: {
-           x: { beginAtZero: true }
-          },
+           x: {
+             beginAtZero: true,
+             ticks: {
+               display: false
+             },
+             grid: {
+               display: true
+             }
+           }
+         },
           plugins: {
           legend: { display: false },
           tooltip: { enabled: false },     // opzionale
