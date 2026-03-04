@@ -86,34 +86,17 @@ const db = firebase.database(); // funziona ORA perché l’URL è nel config
     const dbRef = db.ref("spese");
     let speseChartInstance = null;
     dbRef.on("value", (snapshot) => {
-      const data = snapshot.val();
+      const data = snapshot.val() || {};
       const totals = [];
 
       for (const squadra in data) {
-        const spese = data[squadra];
-        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0);
+        const spese = Array.isArray(data[squadra]) ? data[squadra] : [];
+        const totale = spese.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
         const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase();
         totals.push({ squadra: nomeVisuale, totale }, (error) => { console.error("Firebase RTDB error:", error); });
       }
 
       totals.sort((a, b) => b.totale - a.totale);
-
-      // Popola la tabella
-      const tbody = document.querySelector("#classifica tbody");
-      tbody.innerHTML = '';
-      totals.slice(0, 5).forEach((t, idx) => {
-        const tr = document.createElement("tr");
-        if (idx === 0) tr.classList.add("highlight");
-        tr.innerHTML = `<td>${t.squadra}</td><td>${t.totale.toFixed(2)}</td>`;
-        tbody.appendChild(tr);
-      });
-      if ($.fn.dataTable.isDataTable('#classifica')) {
-  $('#classifica').DataTable().clear().destroy();
-}
-
-new DataTable('#classifica', {
-  order: [[1, 'desc']]
-});
 
       // Grafico top 5
       const top5 = totals.slice(0, 5);
