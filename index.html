@@ -5,36 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coppa Mangia e Bevi 2026</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-    }
-    table {
-      width: 100%;
-      margin-top: 2rem;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    .highlight {
-      background-color: #d4edda !important;
-    }
-#chart-container {
-  width: 100%;
-  max-width: 1000px;
-  height: 350px; /* Fissa l'altezza */
-  margin: 3rem auto;
-  position: relative;
-}
 
-canvas#speseChart {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-}
+  <style>
+    :root {
+      --bg1: #eef6ff;
+      --bg2: #f9fbff;
+      --card: #ffffff;
+      --text: #17324d;
+      --muted: #5f7891;
+      --accent: #3a86d1;
+      --shadow: 0 10px 30px rgba(23, 50, 77, 0.10);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      padding: 1rem;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin: 0 0 1rem 0;
+      padding-top: 0.5rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(58, 134, 209, 0.10);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.9rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4.8vw, 2.8rem);
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      margin: 0.55rem 0 0 0;
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .chart-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem 1rem 1.25rem;
+      margin: 1rem auto 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    #chart-container {
+      width: 100%;
+      max-width: 1000px;
+      height: 420px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    canvas#speseChart {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 0.75rem;
+      }
+
+      .hero {
+        margin-bottom: 0.75rem;
+      }
+
+      .hero-badge {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.7rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .chart-card {
+        padding: 0.9rem 0.75rem 1rem;
+        border-radius: 16px;
+      }
+
+      h2 {
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+      }
+
+      #chart-container {
+        height: 500px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 0.6rem;
+      }
+
+      #chart-container {
+        height: 540px;
+      }
+    }
   </style>
 
   <!-- Librerie esterne -->
@@ -48,109 +154,122 @@ canvas#speseChart {
 </head>
 
 <body>
-  <h1>Lui & Lei - Coppa Mangia & Bevi 2026</h1>
+  <div class="page">
+    <div class="hero">
+      <div class="hero-badge">CLASSIFICA LIVE</div>
+      <h1>Coppa Mangia e Bevi 2026</h1>
+      <p class="hero-subtitle">Lui & Lei</p>
+    </div>
 
-<h2>Top 10</h2>
-<div id="chart-container">
-  <canvas id="speseChart"></canvas>
-</div>
-<!--
-    <table id="classifica">
-      <thead>
-        <tr><th>Squadra</th><th>Totale (CHF)</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
--->
+    <div class="chart-card">
+      <h2>Top 10</h2>
+      <div id="chart-container">
+        <canvas id="speseChart"></canvas>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Configurazione Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBr6nu9AM-CuZmIAArzqVFLurBNXdYmOCI",
-  authDomain: "mangiaebevi-2026.firebaseapp.com",
-  databaseURL: "https://mangiaebevi-2026-default-rtdb.europe-west1.firebasedatabase.app/",
-  projectId: "mangiaebevi-2026",
-  storageBucket: "mangiaebevi-2026.firebasestorage.app",
-  messagingSenderId: "844364471012",
-  appId: "1:844364471012:web:1cf2d8edcbb9fd3010aaf1"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyBr6nu9AM-CuZmIAArzqVFLurBNXdYmOCI",
+      authDomain: "mangiaebevi-2026.firebaseapp.com",
+      databaseURL: "https://mangiaebevi-2026-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "mangiaebevi-2026",
+      storageBucket: "mangiaebevi-2026.firebasestorage.app",
+      messagingSenderId: "844364471012",
+      appId: "1:844364471012:web:1cf2d8edcbb9fd3010aaf1"
+    };
 
-    // Inizializza Firebase
     firebase.initializeApp(firebaseConfig);
-// Aggiungi l'URL del database corretto:
-const db = firebase.database(); // funziona ORA perché l’URL è nel config
-
+    const db = firebase.database();
     const dbRef = db.ref("spese");
+
     let speseChartInstance = null;
+
+    function safeNumber(x) {
+      const n = parseFloat(x);
+      return Number.isFinite(n) ? n : 0;
+    }
+
     dbRef.on("value", (snapshot) => {
-      const data = snapshot.val();
+      const data = snapshot.val() || {};
       const totals = [];
 
       for (const squadra in data) {
-        const spese = data[squadra];
-        const totale = spese.reduce((sum, val) => sum + parseFloat(val), 0);
-        const nomeVisuale = squadra.replace(/_/g, ' ').toUpperCase();
+        const spese = Array.isArray(data[squadra]) ? data[squadra] : [];
+        const totale = spese.reduce((sum, val) => sum + safeNumber(val), 0);
+        const nomeVisuale = squadra.replace(/_/g, " ").toUpperCase();
         totals.push({ squadra: nomeVisuale, totale });
       }
 
       totals.sort((a, b) => b.totale - a.totale);
-/*	
-      // Popola la tabella
-      const tbody = document.querySelector("#classifica tbody");
-      tbody.innerHTML = '';
-      totals.slice(0, 5).forEach((t, idx) => {
-        const tr = document.createElement("tr");
-        if (idx === 0) tr.classList.add("highlight");
-        tr.innerHTML = `<td>${t.squadra}</td><td>${t.totale.toFixed(2)}</td>`;
-        tbody.appendChild(tr);
-      });
-      if ($.fn.dataTable.isDataTable('#classifica')) {
-  $('#classifica').DataTable().clear().destroy();
-}
-*/
-new DataTable('#classifica', {
-  order: [[1, 'desc']]
-});
 
-      // Grafico top 10
       const top10 = totals.slice(0, 10);
-      const ctx = document.getElementById('speseChart').getContext('2d');
-      if (speseChartInstance) { speseChartInstance.destroy(); }
+      const ctx = document.getElementById("speseChart").getContext("2d");
+
+      if (speseChartInstance) {
+        speseChartInstance.destroy();
+      }
+
       speseChartInstance = new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: {
           labels: top10.map(t => t.squadra),
           datasets: [{
-            label: 'Spese CHF',
+            label: "Spese CHF",
             data: top10.map(t => t.totale),
             backgroundColor: top10.map((_, i) => {
-              if (i === 0) return '#FFD700';  // oro
-              if (i === 1) return '#C0C0C0';  // argento
-              if (i === 2) return '#CD7F32';  // bronzo
-              return 'rgba(54, 162, 235, 0.6)'; // celeste
+              if (i === 0) return "#FFD700";
+              if (i === 1) return "#C0C0C0";
+              if (i === 2) return "#CD7F32";
+              return "rgba(54, 162, 235, 0.6)";
             }),
             borderWidth: 1
           }]
         },
         options: {
-         indexAxis: 'y',
-         responsive: true,
-         maintainAspectRatio: false,
-         scales: {
-           x: {
-             beginAtZero: true,
-             ticks: {
-               display: false
-             },
-             grid: {
-               display: true
-             }
-           }
-         },
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 500
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                display: false
+              },
+              grid: {
+                display: true
+              },
+              border: {
+                display: false
+              }
+            },
+            y: {
+              ticks: {
+                font: {
+                  size: 12,
+                  weight: "600"
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                display: false
+              }
+            }
+          },
           plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false },     // opzionale
-          datalabels: { display: false }   // niente cifre nel grafico
-         }
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: false
+            }
+          }
         }
       });
     });
