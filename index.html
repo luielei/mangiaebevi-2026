@@ -86,7 +86,7 @@
     #chart-container {
       width: 100%;
       max-width: 1000px;
-      height: 420px;
+      height: 520px;
       margin: 0 auto;
       position: relative;
     }
@@ -191,105 +191,126 @@
       return Number.isFinite(n) ? n : 0;
     }
 
-    dbRef.on("value", (snapshot) => {
-      const data = snapshot.val() || {};
-      const totals = [];
-
-      for (const squadra in data) {
-        const spese = Array.isArray(data[squadra]) ? data[squadra] : [];
-        const totale = spese.reduce((sum, val) => sum + safeNumber(val), 0);
-        const nomeVisuale = squadra.replace(/_/g, " ").toUpperCase();
-        totals.push({ squadra: nomeVisuale, totale });
+    function formatLabel(label) {
+      if (window.innerWidth > 700) {
+        return label;
       }
 
-      totals.sort((a, b) => b.totale - a.totale);
+      const maxLen = 12;
+      const words = label.split(" ");
+      const lines = [];
+      let current = "";
 
-      const top10 = totals.slice(0, 10);
-      const ctx = document.getElementById("speseChart").getContext("2d");
-
-      if (speseChartInstance) {
-        speseChartInstance.destroy();
-      }
-
-      speseChartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-labels: top10.map(t => {
-  const maxLen = 12; // lunghezza per riga (puoi regolarla)
-  const words = t.squadra.split(" ");
-  let lines = [];
-  let current = "";
-
-  words.forEach(word => {
-    if ((current + " " + word).trim().length > maxLen) {
-      lines.push(current.trim());
-      current = word;
-    } else {
-      current += " " + word;
-    }
-  });
-
-  if (current) lines.push(current.trim());
-  return lines;
-}),
-          datasets: [{
-            label: "Spese CHF",
-            data: top10.map(t => t.totale),
-            backgroundColor: top10.map((_, i) => {
-              if (i === 0) return "#FFD700";
-              if (i === 1) return "#C0C0C0";
-              if (i === 2) return "#CD7F32";
-              return "rgba(54, 162, 235, 0.6)";
-            }),
-            borderWidth: 1
-          }]
-        },
-        options: {
-          indexAxis: "y",
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            duration: 500
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: {
-                display: false
-              },
-              grid: {
-                display: true
-              },
-              border: {
-                display: false
-              }
-            },
-y: {
-  ticks: {
-    font: {
-      size: 12,
-      weight: "600"
-    },
-    padding: 6
-  },
-              grid: {
-                display: false
-              },
-              border: {
-                display: false
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              enabled: false
-            }
-          }
+      words.forEach(word => {
+        const testLine = (current + " " + word).trim();
+        if (testLine.length > maxLen && current) {
+          lines.push(current.trim());
+          current = word;
+        } else {
+          current = testLine;
         }
       });
+
+      if (current) lines.push(current.trim());
+      return lines;
+    }
+
+    function buildChart() {
+      dbRef.on("value", (snapshot) => {
+        const data = snapshot.val() || {};
+        const totals = [];
+
+        for (const squadra in data) {
+          const spese = Array.isArray(data[squadra]) ? data[squadra] : [];
+          const totale = spese.reduce((sum, val) => sum + safeNumber(val), 0);
+          const nomeVisuale = squadra.replace(/_/g, " ").toUpperCase();
+          totals.push({ squadra: nomeVisuale, totale });
+        }
+
+        totals.sort((a, b) => b.totale - a.totale);
+
+        const top10 = totals.slice(0, 10);
+        const ctx = document.getElementById("speseChart").getContext("2d");
+
+        if (speseChartInstance) {
+          speseChartInstance.destroy();
+        }
+
+        speseChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: top10.map(t => formatLabel(t.squadra)),
+            datasets: [{
+              label: "Spese CHF",
+              data: top10.map(t => t.totale),
+              backgroundColor: top10.map((_, i) => {
+                if (i === 0) return "#FFD700";
+                if (i === 1) return "#C0C0C0";
+                if (i === 2) return "#CD7F32";
+                return "rgba(54, 162, 235, 0.6)";
+              }),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: 500
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: {
+                  display: false
+                },
+                grid: {
+                  display: true
+                },
+                border: {
+                  display: false
+                }
+              },
+              y: {
+                ticks: {
+                  font: {
+                    size: 12,
+                    weight: "600"
+                  },
+                  padding: 6
+                },
+                grid: {
+                  display: false
+                },
+                border: {
+                  display: false
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                enabled: false
+              }
+            }
+          }
+        });
+      });
+    }
+
+    buildChart();
+
+    window.addEventListener("resize", () => {
+      if (speseChartInstance) {
+        speseChartInstance.destroy();
+        speseChartInstance = null;
+      }
+
+      dbRef.off();
+      buildChart();
     });
   </script>
 </body>
